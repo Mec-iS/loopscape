@@ -148,6 +148,8 @@ pub mod operations {
         };
 
         let mut handles: Vec<_> = Vec::new();
+
+        sleep(Duration::from_millis(5));
         
         for (i, pattern) in patterns.iter().enumerate() {
             let pattern = pattern.clone();

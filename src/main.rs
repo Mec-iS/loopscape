@@ -1,7 +1,6 @@
 extern crate ears;
 extern crate rand;
 
-mod soundscape;
 mod tests;
 
 use std::error::Error;
