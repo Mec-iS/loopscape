@@ -1,0 +1,10 @@
+[package]
+name = "loopscope"
+version = "0.1.0"
+authors = ["Mec-iS <tunedconsulting@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+piston_window = "0.80.0"
+ears = "*"
+rand = "*"
