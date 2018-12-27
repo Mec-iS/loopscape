@@ -12,26 +12,45 @@ use loopscope::shapes::Shape;
 use loopscope::constants::{DOT, DASH, PAUSE};
 use loopscope::operations::*;
 
-
-
-fn main() {
+///
+/// initialize basic shapes
+fn init_shapes() -> (Shape, Shape, Shape) {
     let sqr: Shape = Shape::square();
     let trn: Shape = Shape::triangle();
     let pnt: Shape = Shape::pentagon();
 
-    let operations = [
-        stacking,
-        sequencing,
-        mutating,
-        interleaving,
-        threading
-    ];
+    (sqr, trn, pnt)
+}
 
-    // let shapes: [Shape; 3] = [
-    //     sqr, trn, pnt,
-    // ];
+///
+/// initialize available operations
+fn init_operations() -> [&'static Operation<'static>; 5] {
+    // create an array of references that points to Operation
+    // constants
+    use loopscope::operations::{Stacking, Sequencing, Stretching,
+         Interleaving, Threading};
+    [
+        &Stacking,
+        &Sequencing,
+        &Stretching,
+        &Interleaving,
+        &Threading,
+    ]
+}
 
-    // println!("shapes no: {}", shapes.len());
+///
+/// run an operation over a array N-2 of patterns
+fn apply_operation(operation: &Operation, patterns: &[Vec<char>; 2]) {
+    let func = operation.func;
+    func(patterns)
+}
+
+fn main() {
+    // available shapes
+    let (sqr, trn, pnt) = init_shapes();
+
+    // available operations
+    let operations = init_operations();
 
     // let rnd1: &Shape = &rand::thread_rng().choose(&shapes).unwrap();
     // let rnd2: &Shape = &rand::thread_rng().choose(&shapes).unwrap();
@@ -57,7 +76,10 @@ fn main() {
         pattern1.chars().collect(),
         pattern2.chars().collect(),
     ];
-    
-    threading(&patterns);
+
+    println!("{:?}", operations[2].symbol);
+
+    apply_operation(operations[2], &patterns);
+
 
 }

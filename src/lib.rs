@@ -54,7 +54,7 @@ pub mod shapes {
     #[derive(Debug)]
     pub struct Shape {
         pub name: String,
-        pub pattern: String,
+        pub pattern: String,  // must have fixed lenght of 4 by now
         pub sides: u32,
     }
 
@@ -72,7 +72,7 @@ pub mod shapes {
         pub fn triangle() -> Shape {
             Shape::build(
                 String::from("triangle"),
-                String::from(".-."),
+                String::from(".-.."),
                 3,
             )
         }
@@ -103,7 +103,7 @@ pub mod operations {
     use std::thread;
     use std::thread::sleep;
     
-    use super::soundscape::play_path;
+    use super::soundscape::{play_path, play_path_pitch};
     use super::constants;
 
     ///
@@ -111,29 +111,83 @@ pub mod operations {
     /// responds and a function that define how the patterns passed
     /// have to be played.
     pub struct Operation<'a> {
-        symbol: &'a str,
-        func: &'a Fn(&[Vec<char>; 2]),
+        pub symbol: &'a str,
+        pub func: fn(&[Vec<char>; 2]),
     }
 
     ///
     /// An operation that plays patterns by adding sounds with the same
     /// position (index in a vector). The "plain" mode makes shoter patterns
     /// to repeat from the beggining to adapt to the lenght of longer patterns.
-    pub fn stacking(pattern: &[Vec<char>; 2]) {}
+    pub fn stacking(patterns: &[Vec<char>; 2]) {
+
+        for (i, p) in patterns[0].iter().enumerate() {
+            let mut handles: Vec<_> = Vec::new();
+
+            let ch1 = p.clone();
+            let ch2 = patterns[1][i].clone();
+            handles.push(thread::spawn(move || {
+               play_path(
+                   constants::Primitive::get_path_from_char(&ch1)
+               );
+            }));
+
+            handles.push(thread::spawn(move || {
+               play_path(
+                   constants::Primitive::get_path_from_char(&ch2)
+               );
+            }));
+
+            for handle in handles {
+                handle.join().unwrap();
+            }
+        }
+    }
 
     /// 
     /// An operations that plays patterns one after the other
-    pub fn sequencing(pattern: &[Vec<char>; 2]) {}
+    pub fn sequencing(patterns: &[Vec<char>; 2]) {
+        let mut full: Vec<char> = patterns[0].clone();
+        let mut addend: Vec<char> = patterns[1].clone();
+        let full = full.append(&mut addend);
+
+        for (i, ch) in patterns[0].iter().enumerate() {
+            let ch = ch.clone();
+            play_path(
+                constants::Primitive::get_path_from_char(&ch));
+        }
+    }
 
     ///
-    /// An operation that applies some kind of transformation over a pattern
-    /// before it gets played. This a single-input operation.
-    pub fn mutating(pattern: &[Vec<char>; 2]) {}
+    /// An operation that modify the pitch over a pattern
+    /// before it gets played. This a single-input operation (play only the
+    /// first pattern in the input array).
+    pub fn stretching(patterns: &[Vec<char>; 2]) {
+        let pattern = patterns[0].clone();
+
+        for (i, ch) in pattern.iter().enumerate() {
+            let ch = ch.clone();
+            play_path_pitch(
+                constants::Primitive::get_path_from_char(&ch), 0.8);
+        }
+    }
 
     ///
     /// An operation that plays the elements of patterns in a Z-curve (interleaving)
     /// fashion
-    pub fn interleaving(pattern: &[Vec<char>; 2]) {}
+    pub fn interleaving(patterns: &[Vec<char>; 2]) {
+        use itertools::interleave;
+
+        let p0 = patterns[0].clone();
+        let p1 = patterns[1].clone();
+
+        for ch in interleave(&p0, &p1) {
+            let ch = ch.clone();
+            play_path(
+                constants::Primitive::get_path_from_char(&ch));
+        }
+
+    }
 
     /// 
     /// Threading:
@@ -142,25 +196,20 @@ pub mod operations {
     /// that make up a pattern are played according to machine specs
     /// and in an arbitrary order.
     pub fn threading(patterns: &[Vec<char>; 2]) {
-        let Threading: Operation = Operation {
-            symbol: "||",
-            func: &threading,
-        };
-
         let mut handles: Vec<_> = Vec::new();
 
-        sleep(Duration::from_millis(5));
+        //sleep(Duration::from_millis(5));
         
         for (i, pattern) in patterns.iter().enumerate() {
             let pattern = pattern.clone();
-            for (j, ch) in pattern.iter().enumerate() {
+            for (_, ch) in pattern.iter().enumerate() {
                 let ch = ch.clone();
                 handles.push(thread::spawn(move || {
                    play_path(
                        constants::Primitive::get_path_from_char(&ch)
                    );
                 }));
-                sleep(Duration::from_millis(1));
+                //sleep(Duration::from_millis(1));
             }
         }
 
@@ -170,6 +219,32 @@ pub mod operations {
             handle.join().unwrap();
         }
     }
+
+    pub const Stacking: Operation = Operation {
+        symbol: "+",
+        func: stacking,
+    };
+
+    pub const Sequencing: Operation = Operation {
+        symbol: "~",
+        func: sequencing,
+    };
+
+    pub const Stretching: Operation = Operation {
+        symbol: ">",
+        func:  stretching,
+    };
+
+    pub const Interleaving: Operation = Operation {
+        symbol: "/",
+        func:  interleaving,
+    };
+
+    pub const Threading: Operation = Operation {
+        symbol: "|",
+        func: threading,
+    };
+
 }
 
 mod soundscape {
@@ -179,6 +254,20 @@ mod soundscape {
         // Create a new Sound.
         println!("{}", path);
         let mut snd = Sound::new(path).unwrap();
+
+        // Play the Sound
+        snd.play();
+
+        // Wait until the end of the sound
+        while snd.is_playing() {}
+    }
+
+    pub fn play_path_pitch(path: &str, multiplier: f32) {
+        // Create a new Sound.
+        println!("{}", path);
+        let mut snd = Sound::new(path).unwrap();
+
+        snd.set_pitch(multiplier);
 
         // Play the Sound
         snd.play();
