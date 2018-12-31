@@ -48,6 +48,7 @@ pub mod constants {
 /// Basic hard-coded shapes
 ///
 pub mod shapes {
+    use std::fmt;
 
     // This is a generic shape
     // they are used as "Primitives" to be basic building blocks
@@ -55,7 +56,14 @@ pub mod shapes {
     pub struct Shape {
         pub name: String,
         pub pattern: String,  // must have fixed lenght of 4 by now
-        pub sides: u32,
+        pub sides: u8,
+    }
+
+    impl fmt::Display for Shape {
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            write!(f, "{} | {} | {}", self.name, self.pattern, self.sides)
+    
+        }
     }
 
     // define basic shapes and a `build` method for generic shapes
@@ -81,11 +89,11 @@ pub mod shapes {
             Shape::build(
                 String::from("pentagon"),
                 String::from("-.P-"),
-                4,
+                5,
             )
         }
 
-        pub fn build(name: String, pattern: String, sides: u32) -> Shape {
+        pub fn build(name: String, pattern: String, sides: u8) -> Shape {
             Shape {
                 name: name,
                 pattern: pattern,
@@ -99,6 +107,7 @@ pub mod shapes {
 /// Allowed operations on shapes
 ///
 pub mod operations {
+    use std::fmt;
     use std::time::Duration;
     use std::thread;
     use std::thread::sleep;
@@ -112,7 +121,14 @@ pub mod operations {
     /// have to be played.
     pub struct Operation<'a> {
         pub symbol: &'a str,
+        pub name: &'a str,
         pub func: fn(&[Vec<char>; 2]),
+    }
+
+    impl<'a> fmt::Display for Operation<'a> {
+        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            write!(f, "{} | {}", self.name, self.symbol)
+        }
     }
 
     ///
@@ -222,29 +238,33 @@ pub mod operations {
 
     pub const Stacking: Operation = Operation {
         symbol: "+",
+        name: "stacking",
         func: stacking,
     };
 
     pub const Sequencing: Operation = Operation {
         symbol: "~",
+        name: "sequencing",
         func: sequencing,
     };
 
     pub const Stretching: Operation = Operation {
         symbol: ">",
+        name: "stretching",
         func:  stretching,
     };
 
     pub const Interleaving: Operation = Operation {
         symbol: "/",
+        name: "interleaving",
         func:  interleaving,
     };
 
     pub const Threading: Operation = Operation {
         symbol: "|",
+        name: "threading",
         func: threading,
     };
-
 }
 
 mod soundscape {
