@@ -5,8 +5,10 @@ authors = ["Mec-iS <tunedconsulting@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-piston_window = "0.80.0"
 ears = "*"
 rand = "*"
 itertools = "*"
 text_io = "*"
+
+[profile.release]
+debug = true
