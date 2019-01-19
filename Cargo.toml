@@ -5,8 +5,8 @@ authors = ["Mec-iS <tunedconsulting@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+libc = "0.2.46"
 ears = "*"
-rand = "*"
 itertools = "*"
 text_io = "*"
 
