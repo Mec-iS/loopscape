@@ -30,4 +30,4 @@ Shapes can be concatenated in shapes-operations patterns to form complex samples
 This should be the initial set up for an mini audio-engine to build a Web-app on top, with a proper UI and
 UX to generate sounds from samples.
 The frontend may be in [Gate](https://github.com/SergiusIW/gate/tree/master/) or by leveraging
-[Yew](https://github.com/DenisKolodin/yew) and [WebAudio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Basic_concepts_behind_Web_Audio_API).
+[Yew](https://github.com/DenisKolodin/yew) and [WebAudio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Basic_concepts_behind_Web_Audio_API). Also taking a look to [Sauron-native](https://github.com/ivanceras/sauron-native).
